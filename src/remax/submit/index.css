@@ -1,0 +1,14 @@
+button[class="submit"] {
+  display: flex;
+  color: white;
+  background-color: #6979f8;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  width: 300px;
+  height: 72px;
+  border-radius: 36px;
+  font-size: 24px;
+}

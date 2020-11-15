@@ -1,0 +1,22 @@
+{
+  "name": "@redchili/aform",
+  "version": "1.0.0",
+  "author": "ben14 <544652471@qq.com>",
+  "license": "MIT",
+  "files": [
+    "build"
+  ],
+  "main": "build/index.js",
+  "esnext": "build/index.js",
+  "scripts": {
+    "build": "rimraf build && gulp && tsc"
+  },
+  "dependencies": {
+    "react": "^17.0.1",
+    "remax": "^2.8.8"
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.56",
+    "rimraf": "^3.0.2"
+  }
+}
