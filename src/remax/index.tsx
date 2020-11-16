@@ -1,7 +1,15 @@
 import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { Form as ReForm } from "remax/one";
 import { FormContext } from "./context";
-import { Rule, RequireRule, PatternRule } from "./field";
+import {
+  Rule,
+  RequireRule,
+  PatternRule,
+  RangeMinRule,
+  RangeMaxRule,
+  RangeMinLengthRule,
+  RangeMaxLengthRule,
+} from "./field";
 import { singleObjToArray } from "../util/single_obj_to_array";
 
 type Data = Record<string, string | number>;
@@ -95,8 +103,63 @@ const Form: React.ForwardRefRenderFunction<
               setErrors({ [name]: false });
             }
           }
+        } else if (
+          ["min", "max", "minLength", "maxLength"].indexOf(ruleType) > -1
+        ) {
+          switch (ruleType) {
+            case "min":
+              if (typeof value === "number") {
+                if (value > (item as RangeMinRule)[ruleType]) {
+                  setErrors({ [name]: false });
+                } else {
+                  tag = false;
+                  setErrors({ [name]: item.message });
+                }
+              } else {
+                throw new Error(`当前输入值类似不是数字，${ruleType}无效`);
+              }
+              break;
+            case "max":
+              if (typeof value === "number") {
+                if (value < (item as RangeMaxRule)[ruleType]) {
+                  setErrors({ [name]: false });
+                } else {
+                  tag = false;
+                  setErrors({ [name]: item.message });
+                }
+              } else {
+                throw new Error(`当前输入值类似不是数字，${ruleType}无效`);
+              }
+              break;
+            case "minLength":
+              if (typeof value === "string") {
+                if (value.length > (item as RangeMinLengthRule)[ruleType]) {
+                  setErrors({ [name]: false });
+                } else {
+                  tag = false;
+                  setErrors({ [name]: item.message });
+                }
+              } else {
+                throw new Error(`当前输入值类似不是字符串，${ruleType}无效`);
+              }
+              break;
+            case "maxLength":
+              if (typeof value === "string") {
+                if (value.length < (item as RangeMaxLengthRule)[ruleType]) {
+                  setErrors({ [name]: false });
+                } else {
+                  tag = false;
+                  setErrors({ [name]: item.message });
+                }
+              } else {
+                throw new Error(`当前输入值类似不是字符串，${ruleType}无效`);
+              }
+              break;
+            default:
+              break;
+          }
         } else {
-          console.warn(`${ruleType}是无效的校验规则`);
+          throw new Error(`${ruleType}是无效的校验规则`);
         }
       });
     }

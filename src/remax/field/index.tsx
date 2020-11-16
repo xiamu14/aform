@@ -2,6 +2,26 @@ import React, { useContext, useEffect, FunctionComponent } from "react";
 import { View } from "remax/one";
 import { FormContext } from "../context";
 
+export interface RangeMinRule {
+  min: number;
+  message: string;
+}
+
+export interface RangeMaxRule {
+  max: number;
+  message: string;
+}
+
+export interface RangeMinLengthRule {
+  minLength: number;
+  message: string;
+}
+
+export interface RangeMaxLengthRule {
+  maxLength: number;
+  message: string;
+}
+
 export interface RequireRule {
   required: boolean;
   message: string;
@@ -12,7 +32,13 @@ export interface PatternRule {
   message: string;
 }
 
-export type Rule = RequireRule | PatternRule;
+export type Rule =
+  | RequireRule
+  | PatternRule
+  | RangeMinRule
+  | RangeMaxRule
+  | RangeMinLengthRule
+  | RangeMaxLengthRule;
 
 interface Props {
   name: string;
