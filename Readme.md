@@ -1,4 +1,4 @@
-![](https://assets-phi.vercel.app/aform/form-logo.svg)
+<div align=center><img width="150" height="150" scr="https://assets-phi.vercel.app/aform/form-logo.svg" /></div>
 
 ## AForm
 
