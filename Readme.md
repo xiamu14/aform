@@ -4,6 +4,19 @@
 
 基于微信小程序类 React 框架 [Remax](https://remaxjs.org/) 的轻量级表单库
 
+## 背景
+
+表单问题，不管是在 jQuery 时代，还是 React，Vue 时代，都一直存在，微信小程序更是如此。目前传统的表单开发方式：
+
+1. 手动管理表单状态
+2. 手动收集表单数据
+3. 手动管理表单校验状态
+
+带来的问题：
+
+1. 表单数量大而复杂的时候，每个表单域都要手动绑定 value/onChange ，造成代码冗余
+2. 表单数据校验缺乏简单而统一的方式，需要手动逐个处理，增加工作量
+
 ## 特点
 
 - 自动绑定表单域，用于收集输入数据，无需手动声明 'onChange'、'onBlur' 等方法
@@ -15,7 +28,7 @@
 `yarn add @redchili/aform`
 
 ## 示例【Remax】
-
+### 快速入门
 ```javascript
 import * as React from "react";
 import { useState, useEffect } from "react";
@@ -37,13 +50,9 @@ function InputBase(props) {
 }
 
 export default () => {
-  const [errors, setErrors] = useState();
-  useEffect(() => {
-    console.log("check", errors);
-  }, [errors]);
   return (
     <View className={styles.app}>
-      <Form onSubmit={(data) => console.log(data)} registerError={setErrors}>
+      <Form onSubmit={(data) => console.log(data)} >
         <Field
           name="test"
           rule={[{ required: true, message: "请输入测试数据" }]}
@@ -55,21 +64,9 @@ export default () => {
   );
 };
 ```
+### 更多场景示例
 
-## 背景
-
-表单问题，不管是在 jQuery 时代，还是 React，Vue 时代，都一直存在，微信小程序更是如此。目前传统的表单开发方式：
-
-1. 手动管理表单状态
-2. 手动收集表单数据
-3. 手动管理表单校验状态
-
-带来的问题：
-
-1. 表单数量大而复杂的时候，每个表单域都要手动绑定 value/onChange ，造成代码冗余
-2. 表单数据校验缺乏简单而统一的方式，需要手动逐个处理，增加工作量
-
-## 实战
+## 循序渐进的教程
 
 ### 绑定表单域
 
@@ -206,11 +203,100 @@ Field 提供了 component 属性用于手动绑定封装的自定义表单域组
   xProps={{ label: "昵称" }}
 ></Field>
 ```
+
 - component 属性用于传递表单域组件，xProps 用于传入表单域组件除 value,onInput 以外的 props 属性
 - Field 接受一个泛型，用于校验 xProps 。
 
 ### 校验数据
 
+AForm 支持下面的校验规则：
+
+- required (必填)
+- min （数字最小值）
+- max （数字最大值）
+- minLength (字符串最小长度)
+- maxLength (字符串最小长度)
+- pattern (正则校验或自定义校验函数)
+
+规则对象描述如下：
+
+```javascript
+<Field name="password" rule={[{ required: true, message: "请输入密码" }]}>
+  {/* @ts-ignore */}
+  <InputBase label="密码:"></InputBase>
+</Field>
+```
+
+> rule 属性支持以数组形式存在的校验规则集，每个规则由规则类型字段（required,min,max,minLength,maxLength,pattern）和错误信息字段组成
+> required 字段的值是布尔类型
+> min,max，minLength,maxLength 字段的值是数字
+> pattern 字段的值是正则表达式或返回布尔值的函数
+
 ### 捕获错误
+当定义好了每个表单域的校验规则以后，一般需要在输入时或者表单域失去焦点时校验数据，数据校验不通过时通常需要显示错误信息，以提醒用户修正输入内容。
+AForm 通过外部业务组件中出入的 setState 函数，将校验结果返回给外部业务组件。示例代码如下：
+```javascript
+import * as React from "react";
+import { useState, useEffect } from "react";
+import { View, Text, Image, Input, Label } from "remax/wechat";
+import {
+  ReForm as Form,
+  ReField as Field,
+  ReSubmit as Submit,
+} from "@redchili/aform";
+import styles from "./index.css";
+
+function InputBase(props) {
+  return (
+    <View>
+      <Label className={styles.fieldLabel}>{props.label}</Label>
+      <Input
+        className={styles.fieldInputText}
+        value={props.value}
+        onInput={props.onInput}
+      ></Input>
+    </View>
+  );
+}
+
+export default () => {
+  const [errors, setErrors] = useState(); // NOTE-1 外部业务组件定义 state
+  useEffect(() => {
+    console.log("check", errors);
+  }, [errors]);
+  return (
+    <View className={styles.formBox}>
+      {/* NOTE-2 传入 setState 函数，捕获检验结果 */}
+      <Form onSubmit={(data) => console.log(data)} registerError={setErrors}> 
+        <Field
+          name="nickname"
+          rule={[{ required: true, message: "请输入呢称" }]}
+          component={InputBase}
+          xProps={{ label: "昵称" }}
+        >
+          {/* @ts-ignore */}
+        </Field>
+        <Field
+          name="password"
+          rule={[{ required: true, message: "请输入密码" }]}
+        >
+          {/* @ts-ignore */}
+          <InputBase label="密码:"></InputBase>
+        </Field>
+        <Field
+          name="rePassword"
+          rule={[{ required: true, message: "请输入密码" }]}
+        >
+          {/* @ts-ignore */}
+          <InputBase label="重复密码:"></InputBase>
+        </Field>
+        <Submit className={styles.btnSubmit}>注册</Submit>
+      </Form>
+    </View>
+  );
+};
+```
+> 捕获错误信息的代码在 NOTE-1， 和 NOTE-2 注释
 
 ### 提交请求
+表单输入的数据获取时通过 Form 里的 onSubmit 。

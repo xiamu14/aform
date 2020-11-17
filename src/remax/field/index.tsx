@@ -1,4 +1,9 @@
-import React, { useContext, useEffect, FunctionComponent } from "react";
+import React, {
+  useContext,
+  useEffect,
+  FunctionComponent,
+  Attributes,
+} from "react";
 import { View } from "remax/one";
 import { FormContext } from "../context";
 
@@ -40,20 +45,23 @@ export type Rule =
   | RangeMinLengthRule
   | RangeMaxLengthRule;
 
-interface Props {
+type Remove<T, K> = {
+  [P in Exclude<keyof T, K>]: T[P];
+};
+
+interface Props<T> {
   name: string;
   className?: string;
   style?: Record<string, string>;
   checkMode?: "blur" | "input"; // 校验的模式，默认 input
   rule?: Rule[];
-  component?: FunctionComponent<{
-    value: any;
-    onInput: (itemValue: any) => void;
-  }>; // 支持外部函数
-  xProps?: any; // 外部组件的 props
+  component?: FunctionComponent; // 支持外部函数
+  xProps?: Remove<T, "value" | "onInput" | "onBlur">; // 外部组件的 props
 }
 
-export default function Field(props: React.PropsWithChildren<Props>) {
+export default function Field<T extends Attributes>(
+  props: React.PropsWithChildren<Props<T>>
+) {
   const {
     children,
     checkMode,
