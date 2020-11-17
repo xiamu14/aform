@@ -87,6 +87,8 @@ import {
 <View className={styles.formBox}>
   <Form onSubmit={(data) => console.log(data)}>
     <Field name="nickname">
+      {" "}
+      // name 属性必须是唯一标识
       <Input placeholder="请输入昵称" className={styles.fieldInputText}></Input>
     </Field>
     <Field name="password">
@@ -97,7 +99,7 @@ import {
     </Field>
     <Submit className={styles.btnSubmit}>注册</Submit>
   </Form>
-</View>
+</View>;
 ```
 
 ```css
@@ -144,7 +146,68 @@ import {
 }
 ```
 
+表单域组件绑定
+
+- Field 组件 props 里的 name 是表单域组件在表单里的唯一标识，不可重名。
+- Field 的 child 可以是任意实现了 props 包含 value 和 onInput 属性的表单组件，Form 组件会通过 context （具体实现请查阅源码）实现自动绑定数据，自动收集表单组件的输入。
+- AForm 库不实现任何包含 UI 的表单域组件，开发者可以根据业务需要，设置样式。
+
 ### 自定义表单域
+
+在实际业务开发中，经常会需要封装逻辑，样式一致的表单域组件。如下面的 InputBase:
+
+```javascript
+function InputBase(props) {
+  return (
+    <View>
+      <Label className={styles.fieldLabel}>{props.label}</Label>
+      <Input
+        className={styles.fieldInputText}
+        value={props.value}
+        onInput={props.onInput}
+      ></Input>
+    </View>
+  );
+}
+```
+
+> InputBase 里需要手动绑定 value， onInput。但具体逻辑不需要业务侧实现，AForm 内部会根据绑定信息，将正确的 value 和 onInput 传递。
+
+实际使用代码如下：
+
+```javascript
+<Form onSubmit={(data) => console.log(data)} registerError={setErrors}>
+  <Field name="nickname" rule={[{ required: true, message: "请输入呢称" }]}>
+    {/* @ts-ignore */}
+    <InputBase label="昵称:"></InputBase>
+  </Field>
+  <Field name="password" rule={[{ required: true, message: "请输入密码" }]}>
+    {/* @ts-ignore */}
+    <InputBase label="密码:"></InputBase>
+  </Field>
+  <Field name="rePassword" rule={[{ required: true, message: "请输入密码" }]}>
+    {/* @ts-ignore */}
+    <InputBase label="重复密码:"></InputBase>
+  </Field>
+  <Submit className={styles.btnSubmit}>注册</Submit>
+</Form>
+```
+
+> 如果项目里使用的 typescript，那么在使用 InputBase 时，由于 typescript 会检查 InputBase props 需要传入 value，onInput ，而实际上 AForm 会自动传入，所以这里需要添加
+> ts-ignore 。但这样的问题是会关闭表单域组件的类型校验，所以 Field 提供了另一种折中的方式。
+
+Field 提供了 component 属性用于手动绑定封装的自定义表单域组件。component 需要传入一个函数，该函数返回表单域组件。示例代码如下：
+
+```javascript
+<Field<InputBaseProps>
+  name="nickname"
+  rule={[{ required: true, message: "请输入呢称" }]}
+  component={InputBase}
+  xProps={{ label: "昵称" }}
+></Field>
+```
+- component 属性用于传递表单域组件，xProps 用于传入表单域组件除 value,onInput 以外的 props 属性
+- Field 接受一个泛型，用于校验 xProps 。
 
 ### 校验数据
 
