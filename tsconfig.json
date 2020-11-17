@@ -9,7 +9,7 @@
     "alwaysStrict": true,
     "jsx": "react",
     "lib": ["ES6", "DOM", "es2017.object"],
-    "outDir": "./build",
+    "outDir": "./dist",
     "rootDir": "./src",
     "baseUrl": "./",
     "paths": {

@@ -7,7 +7,7 @@ var cssnano = require("cssnano");
 function defaultTask(cb) {
   gulp
     .src("src/**/*.css")
-    .pipe(gulp.dest("build"))
+    .pipe(gulp.dest("dist"))
     .pipe(sourcemaps.init())
     .pipe(
       postcss([
@@ -15,7 +15,7 @@ function defaultTask(cb) {
       ])
     )
     .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("build/"));
+    .pipe(gulp.dest("dist/"));
   // place code for your default task here
   cb();
 }
