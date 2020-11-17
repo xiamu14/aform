@@ -28,7 +28,7 @@ const Form: React.ForwardRefRenderFunction<
   React.PropsWithChildren<Props>
 > = (props, ref) => {
   const { onSubmit, children } = props;
-  const [data, setFormData] = useState<Data>();
+  const [data, setData] = useState<Data>();
   const [rules, setRules] = useState<Rules>();
   const [checkModes, setCheckModes] = useState({});
 
@@ -58,10 +58,10 @@ const Form: React.ForwardRefRenderFunction<
     checkMode: "input" | "blur"
   ) => {
     setRules((v) => ({ ...v, ...rule }));
-    setFormData((v) => ({ ...v, ...{ [name]: "" } }));
+    setData((v) => ({ ...v, ...{ [name]: "" } }));
     // 优先级 fieldItem > form > normal
     setCheckModes((v) => ({
-      ...checkModes,
+      ...v,
       ...{ [name]: checkMode || props.checkMode || "blur" },
     }));
   };
@@ -184,7 +184,7 @@ const Form: React.ForwardRefRenderFunction<
     if ((checkModes as Record<string, string>)[name] === "input") {
       checkFieldItem(itemData);
     }
-    setFormData({ ...data, ...itemData });
+    setData({ ...data, ...itemData });
   };
 
   const handleBlur = (itemData: any) => {

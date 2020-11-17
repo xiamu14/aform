@@ -4,7 +4,7 @@ import { FormContext } from "./context";
 import { singleObjToArray } from "../util/single_obj_to_array";
 const Form = (props, ref) => {
     const { onSubmit, children } = props;
-    const [data, setFormData] = useState();
+    const [data, setData] = useState();
     const [rules, setRules] = useState();
     const [checkModes, setCheckModes] = useState({});
     const setErrors = (error) => {
@@ -27,9 +27,9 @@ const Form = (props, ref) => {
     // DONE: 收集所有的 formItem 的 rule 的规则集
     const collectFieldItem = (rule, name, checkMode) => {
         setRules((v) => (Object.assign(Object.assign({}, v), rule)));
-        setFormData((v) => (Object.assign(Object.assign({}, v), { [name]: "" })));
+        setData((v) => (Object.assign(Object.assign({}, v), { [name]: "" })));
         // 优先级 fieldItem > form > normal
-        setCheckModes((v) => (Object.assign(Object.assign({}, checkModes), { [name]: checkMode || props.checkMode || "blur" })));
+        setCheckModes((v) => (Object.assign(Object.assign({}, v), { [name]: checkMode || props.checkMode || "blur" })));
     };
     // DONE: 将 ref 实例传递给父组件，useImperativeHandle 和 forwardRef 一起使用
     useImperativeHandle(ref, () => ({
@@ -74,8 +74,70 @@ const Form = (props, ref) => {
                         }
                     }
                 }
+                else if (["min", "max", "minLength", "maxLength"].indexOf(ruleType) > -1) {
+                    switch (ruleType) {
+                        case "min":
+                            if (typeof value === "number") {
+                                if (value > item[ruleType]) {
+                                    setErrors({ [name]: false });
+                                }
+                                else {
+                                    tag = false;
+                                    setErrors({ [name]: item.message });
+                                }
+                            }
+                            else {
+                                throw new Error(`当前输入值类似不是数字，${ruleType}无效`);
+                            }
+                            break;
+                        case "max":
+                            if (typeof value === "number") {
+                                if (value < item[ruleType]) {
+                                    setErrors({ [name]: false });
+                                }
+                                else {
+                                    tag = false;
+                                    setErrors({ [name]: item.message });
+                                }
+                            }
+                            else {
+                                throw new Error(`当前输入值类似不是数字，${ruleType}无效`);
+                            }
+                            break;
+                        case "minLength":
+                            if (typeof value === "string") {
+                                if (value.length > item[ruleType]) {
+                                    setErrors({ [name]: false });
+                                }
+                                else {
+                                    tag = false;
+                                    setErrors({ [name]: item.message });
+                                }
+                            }
+                            else {
+                                throw new Error(`当前输入值类似不是字符串，${ruleType}无效`);
+                            }
+                            break;
+                        case "maxLength":
+                            if (typeof value === "string") {
+                                if (value.length < item[ruleType]) {
+                                    setErrors({ [name]: false });
+                                }
+                                else {
+                                    tag = false;
+                                    setErrors({ [name]: item.message });
+                                }
+                            }
+                            else {
+                                throw new Error(`当前输入值类似不是字符串，${ruleType}无效`);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
                 else {
-                    console.warn(`${ruleType}是无效的校验规则`);
+                    throw new Error(`${ruleType}是无效的校验规则`);
                 }
             });
         }
@@ -99,7 +161,7 @@ const Form = (props, ref) => {
         if (checkModes[name] === "input") {
             checkFieldItem(itemData);
         }
-        setFormData(Object.assign(Object.assign({}, data), itemData));
+        setData(Object.assign(Object.assign({}, data), itemData));
     };
     const handleBlur = (itemData) => {
         const [name] = singleObjToArray(itemData);
