@@ -23,8 +23,12 @@ interface Props {
 
 type Rules = Record<string, Rule[]>;
 
+export interface FormRefType {
+  values?: Data;
+}
+
 const Form: React.ForwardRefRenderFunction<
-  {},
+  FormRefType,
   React.PropsWithChildren<Props>
 > = (props, ref) => {
   const { onSubmit, children } = props;
@@ -68,7 +72,7 @@ const Form: React.ForwardRefRenderFunction<
 
   // DONE: 将 ref 实例传递给父组件，useImperativeHandle 和 forwardRef 一起使用
   useImperativeHandle(ref, () => ({
-    action: {},
+    values: data,
   }));
   const checkFieldItem = (itemData: any) => {
     let tag = true;
