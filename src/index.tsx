@@ -1,3 +1,3 @@
-export { default as ReForm } from "./remax/index";
-export { default as ReField } from "./remax/field";
-export { default as ReSubmit } from "./remax/submit";
+export { default as Form } from "./wechat/index";
+export { default as Field } from "./wechat/field";
+export { default as Submit } from "./wechat/submit";

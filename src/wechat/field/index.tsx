@@ -4,7 +4,7 @@ import React, {
   FunctionComponent,
   Attributes,
 } from "react";
-import { View } from "remax/one";
+import { View } from "remax/wechat";
 import { FormContext } from "../context";
 
 export interface RangeMinRule {

@@ -1,5 +1,5 @@
 import React, { useState, forwardRef, useImperativeHandle } from "react";
-import { Form as ReForm } from "remax/one";
+import { Form as ReForm } from "remax/wechat";
 import { FormContext } from "./context";
 import {
   Rule,

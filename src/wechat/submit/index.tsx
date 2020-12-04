@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Button } from 'remax/one';
+import { Button } from 'remax/wechat';
 import { FormContext } from '../context';
 import './index.css';
 

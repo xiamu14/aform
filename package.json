@@ -6,7 +6,6 @@
   "files": [
     "dist"
   ],
-  "main": "dist/index.js",
   "esnext": "dist/index.js",
   "scripts": {
     "build": "rimraf dist && gulp && tsc"
