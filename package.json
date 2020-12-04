@@ -1,12 +1,12 @@
 {
   "name": "@redchili/aform",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "author": "ben14 <544652471@qq.com>",
   "license": "MIT",
   "files": [
     "dist"
   ],
-  "esnext": "dist/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "rimraf dist && gulp && tsc"
   },
