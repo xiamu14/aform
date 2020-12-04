@@ -1,6 +1,6 @@
 {
   "name": "@redchili/aform",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": "ben14 <544652471@qq.com>",
   "license": "MIT",
   "files": [
@@ -9,14 +9,14 @@
   "main": "dist/index.js",
   "esnext": "dist/index.js",
   "scripts": {
-    "build": "rimraf build && gulp && tsc"
+    "build": "rimraf dist && gulp && tsc"
   },
   "peerDependencies": {
-    "react": "^17.0.1",
+    "react": "^16.12.0",
     "remax": "^2.8.8"
   },
   "dependencies": {
-    "react": "^17.0.1",
+    "react": "^16.12.0",
     "remax": "^2.8.8"
   },
   "devDependencies": {
