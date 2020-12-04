@@ -1,6 +1,6 @@
 {
   "name": "@redchili/aform",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "author": "ben14 <544652471@qq.com>",
   "license": "MIT",
   "files": [
@@ -11,12 +11,9 @@
     "build": "rimraf dist && gulp && tsc"
   },
   "peerDependencies": {
-    "react": "^16.12.0",
-    "remax": "^2.8.8"
-  },
-  "dependencies": {
-    "react": "^16.12.0",
-    "remax": "^2.8.8"
+    "react": ">=16.13.1",
+    "react-dom": ">=16.13.1",
+    "remax": ">=2.7.6"
   },
   "devDependencies": {
     "@types/react": "^16.9.56",
