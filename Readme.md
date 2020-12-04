@@ -30,13 +30,12 @@
 ## 示例【Remax】
 ### 快速入门
 ```javascript
-import * as React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Image, Input, Label } from "remax/wechat";
 import {
-  ReForm as Form,
-  ReField as Field,
-  ReSubmit as Submit,
+  Form,
+  Field,
+  Submit,
 } from "@redchili/aform";
 import styles from "./index.css";
 
