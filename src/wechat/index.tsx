@@ -27,6 +27,8 @@ export interface FormRefType {
   values?: Data;
 }
 
+let innerErrors: Record<string, string> = {};
+
 const Form: React.ForwardRefRenderFunction<
   FormRefType,
   React.PropsWithChildren<Props>
@@ -41,18 +43,24 @@ const Form: React.ForwardRefRenderFunction<
     const [name, value] = singleObjToArray(error);
 
     if (registerError) {
-      value
-        ? registerError((errors) => {
-            return { ...errors, ...error };
-          })
-        : registerError((errors) => {
-            const errorsTmp = { ...errors };
-            if (Object.prototype.hasOwnProperty.call(errorsTmp, name)) {
-              delete (errorsTmp as Record<string, any>)[name];
-            }
+      if (value) {
+        innerErrors = { ...innerErrors, ...error };
+        registerError((errors) => {
+          return { ...errors, ...error };
+        });
+      } else {
+        if (Object.prototype.hasOwnProperty.call(innerErrors, name)) {
+          delete (innerErrors as Record<string, any>)[name];
+        }
+        registerError((errors) => {
+          const errorsTmp = { ...errors };
+          if (Object.prototype.hasOwnProperty.call(errorsTmp, name)) {
+            delete (errorsTmp as Record<string, any>)[name];
+          }
 
-            return errorsTmp;
-          });
+          return errorsTmp;
+        });
+      }
     }
   };
   // DONE: 收集所有的 formItem 的 rule 的规则集
@@ -75,9 +83,12 @@ const Form: React.ForwardRefRenderFunction<
     values: data,
   }));
   const checkFieldItem = (itemData: any) => {
+    // NOTE: 如何判断没有 rules ,则直接返回 true
+    if (!rules) {
+      return true;
+    }
     let tag = true;
     const [name, value] = singleObjToArray(itemData);
-    // console.log("检查下啊", rules);
     if (Object.prototype.hasOwnProperty.call(rules, name) && rules) {
       const rule = rules[name];
       rule.forEach((item) => {
@@ -171,14 +182,15 @@ const Form: React.ForwardRefRenderFunction<
   };
   const handleSubmit = () => {
     // DONE: 判断是否有不合法的数据
-    let tag = true;
-    if (data) {
-      Object.keys(data).forEach((key) => {
-        tag = checkFieldItem({ [key]: data[key] });
-      });
-      if (tag) {
-        onSubmit(data);
-      }
+    // let tag = true;
+
+    if (Object.keys(innerErrors).length === 0 && data) {
+      // Object.keys(data).forEach((key) => {
+      //   tag = checkFieldItem({ [key]: data[key] });
+      // });
+      // if (tag) {
+      onSubmit(data);
+      // }
     }
   };
 
@@ -193,6 +205,7 @@ const Form: React.ForwardRefRenderFunction<
 
   const handleBlur = (itemData: any) => {
     const [name] = singleObjToArray(itemData);
+    
     if ((checkModes as Record<string, string>)[name] === "blur") {
       checkFieldItem(itemData);
     }
