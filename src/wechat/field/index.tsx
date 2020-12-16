@@ -59,7 +59,7 @@ interface Props<T> {
     value: any;
     onInput: (value:any) => void;
     onBlur: (value:any) => void;
-  }) => FunctionComponent; // 支持外部函数
+  }) => JSX.Element; // 支持外部函数
   /** @deprecated */
   xProps?: Remove<T, "value" | "onInput" | "onBlur">; // 外部组件的 props
 }
