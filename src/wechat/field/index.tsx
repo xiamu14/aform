@@ -55,7 +55,12 @@ interface Props<T> {
   style?: Record<string, string>;
   checkMode?: "blur" | "input"; // 校验的模式，默认 input
   rule?: Rule[];
-  component?: FunctionComponent; // 支持外部函数
+  component?: (props: {
+    value: any;
+    onInput: (value:any) => void;
+    onBlur: (value:any) => void;
+  }) => FunctionComponent; // 支持外部函数
+  /** @deprecated */
   xProps?: Remove<T, "value" | "onInput" | "onBlur">; // 外部组件的 props
 }
 
@@ -123,17 +128,25 @@ export default function Field<T extends Attributes>(
       },
     };
     return React.cloneElement(child, childProps);
-    // }
-    // else {
-    //   return child;
-    // }
+  };
+
+  const custom = () => {
+    return component
+      ? component({
+          value: formData && formData[name],
+          onBlur: (itemValue: any) => {
+            handleFn("blur", name, itemValue);
+          },
+          onInput: (itemValue: any) => {
+            handleFn("input", name, itemValue);
+          },
+        })
+      : null;
   };
 
   return (
     <View className={className} style={style}>
-      {component
-        ? bind(React.createElement(component, xProps))
-        : React.Children.map(children, bind)}
+      {component ? custom() : React.Children.map(children, bind)}
     </View>
   );
 }
