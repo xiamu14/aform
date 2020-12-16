@@ -28,15 +28,13 @@
 `yarn add @redchili/aform`
 
 ## 示例【Remax】
+
 ### 快速入门
+
 ```javascript
 import React, { useState, useEffect } from "react";
 import { View, Text, Image, Input, Label } from "remax/wechat";
-import {
-  Form,
-  Field,
-  Submit,
-} from "@redchili/aform";
+import { Form, Field, Submit } from "@redchili/aform";
 import styles from "./index.css";
 
 function InputBase(props) {
@@ -51,7 +49,7 @@ function InputBase(props) {
 export default () => {
   return (
     <View className={styles.app}>
-      <Form onSubmit={(data) => console.log(data)} >
+      <Form onSubmit={(data) => console.log(data)}>
         <Field
           name="test"
           rule={[{ required: true, message: "请输入测试数据" }]}
@@ -63,6 +61,7 @@ export default () => {
   );
 };
 ```
+
 ### 更多场景示例
 
 ## 循序渐进的教程
@@ -190,7 +189,9 @@ function InputBase(props) {
 ```
 
 > 如果项目里使用的 typescript，那么在使用 InputBase 时，由于 typescript 会检查 InputBase props 需要传入 value，onInput ，而实际上 AForm 会自动传入，所以这里需要添加
-> ts-ignore 。但这样的问题是会关闭表单域组件的类型校验，所以 Field 提供了另一种折中的方式。
+> ts-ignore 。但这样的问题是会关闭表单域组件的类型校验，所以 Field 提供了另一种方式。
+
+> 推荐使用 component 的方式定义表单域组件
 
 Field 提供了 component 属性用于手动绑定封装的自定义表单域组件。component 需要传入一个函数，该函数返回表单域组件。示例代码如下：
 
@@ -198,13 +199,13 @@ Field 提供了 component 属性用于手动绑定封装的自定义表单域组
 <Field<InputBaseProps>
   name="nickname"
   rule={[{ required: true, message: "请输入呢称" }]}
-  component={InputBase}
+  component={({value, onInput})=><InputBase value={value} onInput={onInput} />}
   xProps={{ label: "昵称" }}
 ></Field>
 ```
 
 - component 属性用于传递表单域组件，xProps 用于传入表单域组件除 value,onInput 以外的 props 属性
-- Field 接受一个泛型，用于校验 xProps 。
+- Field 接受一个泛型，用于校验 xProps(已废弃，兼容旧版本) 。
 
 ### 校验数据
 
@@ -232,8 +233,10 @@ AForm 支持下面的校验规则：
 > pattern 字段的值是正则表达式或返回布尔值的函数
 
 ### 捕获错误
+
 当定义好了每个表单域的校验规则以后，一般需要在输入时或者表单域失去焦点时校验数据，数据校验不通过时通常需要显示错误信息，以提醒用户修正输入内容。
 AForm 通过外部业务组件中出入的 setState 函数，将校验结果返回给外部业务组件。示例代码如下：
+
 ```javascript
 import * as React from "react";
 import { useState, useEffect } from "react";
@@ -266,7 +269,7 @@ export default () => {
   return (
     <View className={styles.formBox}>
       {/* NOTE-2 传入 setState 函数，捕获检验结果 */}
-      <Form onSubmit={(data) => console.log(data)} registerError={setErrors}> 
+      <Form onSubmit={(data) => console.log(data)} registerError={setErrors}>
         <Field
           name="nickname"
           rule={[{ required: true, message: "请输入呢称" }]}
@@ -295,7 +298,9 @@ export default () => {
   );
 };
 ```
+
 > 捕获错误信息的代码在 NOTE-1， 和 NOTE-2 注释
 
 ### 提交请求
+
 表单输入的数据获取时通过 Form 里的 onSubmit 。
