@@ -1,4 +1,10 @@
-import React, { useState, forwardRef, useImperativeHandle } from "react";
+import React, {
+  useState,
+  forwardRef,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+} from "react";
 import { Form as ReForm } from "remax/wechat";
 import { FormContext } from "./context";
 import {
@@ -27,8 +33,6 @@ export interface FormRefType {
   values?: Data;
 }
 
-let innerErrors: Record<string, string> = {};
-
 const Form: React.ForwardRefRenderFunction<
   FormRefType,
   React.PropsWithChildren<Props>
@@ -38,29 +42,34 @@ const Form: React.ForwardRefRenderFunction<
   const [rules, setRules] = useState<Rules>();
   const [checkModes, setCheckModes] = useState({});
 
-  const setErrors = (error: Record<string, any>) => {
+  const innerErrors = useRef<Record<string, any>>({});
+
+  const setErrors = (errors: Record<string, any>) => {
     const { registerError } = props;
-    const [name, value] = singleObjToArray(error);
-
     if (registerError) {
-      if (value) {
-        innerErrors = { ...innerErrors, ...error };
-        registerError((errors) => {
-          return { ...errors, ...error };
-        });
-      } else {
-        if (Object.prototype.hasOwnProperty.call(innerErrors, name)) {
-          delete (innerErrors as Record<string, any>)[name];
-        }
-        registerError((errors) => {
-          const errorsTmp = { ...errors };
-          if (Object.prototype.hasOwnProperty.call(errorsTmp, name)) {
-            delete (errorsTmp as Record<string, any>)[name];
+      Object.keys(errors).forEach((name) => {
+        const value = errors[name];
+        const error = { [name]: value };
+        if (value) {
+          Object.assign(innerErrors.current, error);
+        } else {
+          if (Object.prototype.hasOwnProperty.call(innerErrors.current, name)) {
+            innerErrors.current[name] = false;
           }
-
-          return errorsTmp;
+        }
+      });
+      registerError((errors) => {
+        const resErrors: Record<string, any> = { ...errors };
+        Object.keys(innerErrors.current).forEach((name) => {
+          const value = innerErrors.current[name];
+          if (value) {
+            Object.assign(resErrors, { [name]: value });
+          } else {
+            delete resErrors[name];
+          }
         });
-      }
+        return resErrors;
+      });
     }
   };
   // DONE: 收集所有的 formItem 的 rule 的规则集
@@ -83,11 +92,7 @@ const Form: React.ForwardRefRenderFunction<
     values: data,
   }));
   const checkFieldItem = (itemData: any) => {
-    // NOTE: 如何判断没有 rules ,则直接返回 true
-    if (!rules) {
-      return true;
-    }
-    let tag = true;
+    let res: Record<string, string | boolean> = {};
     const [name, value] = singleObjToArray(itemData);
     if (Object.prototype.hasOwnProperty.call(rules, name) && rules) {
       const rule = rules[name];
@@ -96,26 +101,24 @@ const Form: React.ForwardRefRenderFunction<
         const ruleType = keys[0];
         if (ruleType === "required" && (item as RequireRule)[ruleType]) {
           if (!value) {
-            setErrors({ [name]: item.message });
-            tag = false;
+            res = { [name]: item.message };
           } else {
-            setErrors({ [name]: false });
+            res = { [name]: false };
           }
         } else if (ruleType === "pattern" && (item as PatternRule)[ruleType]) {
           const ruleMethod = (item as PatternRule)[ruleType];
           if (typeof ruleMethod === "function") {
             if (!ruleMethod(value)) {
-              setErrors({ [name]: item.message });
-              tag = false;
+              res = { [name]: item.message };
             } else {
-              setErrors({ [name]: false });
+              res = { [name]: false };
             }
           } else {
             if (!(ruleMethod as RegExp).test(value)) {
-              setErrors({ [name]: item.message });
-              tag = false;
+              res = { [name]: item.message };
             } else {
-              setErrors({ [name]: false });
+
+              res = { [name]: false };
             }
           }
         } else if (
@@ -125,10 +128,10 @@ const Form: React.ForwardRefRenderFunction<
             case "min":
               if (typeof value === "number") {
                 if (value > (item as RangeMinRule)[ruleType]) {
-                  setErrors({ [name]: false });
+
+                  res = { [name]: false };
                 } else {
-                  tag = false;
-                  setErrors({ [name]: item.message });
+                  res = { [name]: item.message };
                 }
               } else {
                 throw new Error(`当前输入值类似不是数字，${ruleType}无效`);
@@ -137,10 +140,9 @@ const Form: React.ForwardRefRenderFunction<
             case "max":
               if (typeof value === "number") {
                 if (value < (item as RangeMaxRule)[ruleType]) {
-                  setErrors({ [name]: false });
+                  res = { [name]: false };
                 } else {
-                  tag = false;
-                  setErrors({ [name]: item.message });
+                  res = { [name]: item.message };
                 }
               } else {
                 throw new Error(`当前输入值类似不是数字，${ruleType}无效`);
@@ -149,10 +151,9 @@ const Form: React.ForwardRefRenderFunction<
             case "minLength":
               if (typeof value === "string") {
                 if (value.length > (item as RangeMinLengthRule)[ruleType]) {
-                  setErrors({ [name]: false });
+                  res = { [name]: false };
                 } else {
-                  tag = false;
-                  setErrors({ [name]: item.message });
+                  res = { [name]: item.message };
                 }
               } else {
                 throw new Error(`当前输入值类似不是字符串，${ruleType}无效`);
@@ -161,10 +162,9 @@ const Form: React.ForwardRefRenderFunction<
             case "maxLength":
               if (typeof value === "string") {
                 if (value.length < (item as RangeMaxLengthRule)[ruleType]) {
-                  setErrors({ [name]: false });
+                  res = { [name]: false };
                 } else {
-                  tag = false;
-                  setErrors({ [name]: item.message });
+                  res = { [name]: item.message };
                 }
               } else {
                 throw new Error(`当前输入值类似不是字符串，${ruleType}无效`);
@@ -178,36 +178,52 @@ const Form: React.ForwardRefRenderFunction<
         }
       });
     }
-    return tag;
+    return res;
   };
   const handleSubmit = () => {
     // DONE: 判断是否有不合法的数据
-    // let tag = true;
-
-    if (Object.keys(innerErrors).length === 0 && data) {
-      // Object.keys(data).forEach((key) => {
-      //   tag = checkFieldItem({ [key]: data[key] });
-      // });
-      // if (tag) {
+    if (!rules) {
       onSubmit(data);
-      // }
+    } else {
+      if (
+        Object.keys(innerErrors.current).length === Object.keys(rules).length &&
+        Object.values(innerErrors.current).every((item) => !item)
+      ) {
+        onSubmit(data);
+      }
+      if (Object.keys(innerErrors.current).length < Object.keys(rules).length) {
+        // 只校验必要的规则
+        const others = Object.keys(rules).filter(
+          (item) => !Object.keys(innerErrors.current).includes(item)
+        );
+
+        // TODO: 合并触发
+        const errors = {};
+        others.forEach((item) =>
+          Object.assign(
+            errors,
+            checkFieldItem({ [item]: (data as Record<string, any>)[item] })
+          )
+        );
+        setErrors(errors);
+      }
     }
   };
 
   const handleInput = (itemData: any) => {
     // TODO:当前的输入校验模式是否是 input
     const [name] = singleObjToArray(itemData);
-    if ((checkModes as Record<string, string>)[name] === "input") {
-      checkFieldItem(itemData);
+    if ((checkModes as Record<string, string>)[name] === "input" && rules) {
+      setErrors(checkFieldItem(itemData));
     }
     setData({ ...data, ...itemData });
   };
 
   const handleBlur = (itemData: any) => {
     const [name] = singleObjToArray(itemData);
-    
-    if ((checkModes as Record<string, string>)[name] === "blur") {
-      checkFieldItem(itemData);
+
+    if ((checkModes as Record<string, string>)[name] === "blur" && rules) {
+      setErrors(checkFieldItem(itemData));
     }
   };
 

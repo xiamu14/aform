@@ -93,11 +93,15 @@ export default function Field<T extends Attributes>(
     value: InputEvent | any
   ) => {
     let itemValue: Record<string, any>;
+
+    // TODO: 这一段从原生组件 event 里取数需要做更多的兼容
     if (typeof value === "object" && value.detail) {
       itemValue = { [name]: value.detail.value };
     } else {
       itemValue = { [name]: value };
     }
+    // ---------------------------------------------
+
     switch (type) {
       case "blur":
         handleBlur(itemValue);
