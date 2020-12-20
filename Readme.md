@@ -22,6 +22,7 @@
 - 自动绑定表单域，用于收集输入数据，无需手动声明 'onChange'、'onBlur' 等方法
 - 简化校验数据的方式，内置常用的校验规则，比如：必填/可选，最大值，正则判断手机号等
 - 样式无关，AForm 只负责处理表单的收集数据，校验数据，提交数据的逻辑，表单的样式由开发者自定义
+- 使用 Typescript，具有完整准确的类型提示
 
 ## 安装
 
@@ -82,7 +83,6 @@ import {
 <View className={styles.formBox}>
   <Form onSubmit={(data) => console.log(data)}>
     <Field name="nickname">
-      {" "}
       // name 属性必须是唯一标识
       <Input placeholder="请输入昵称" className={styles.fieldInputText}></Input>
     </Field>

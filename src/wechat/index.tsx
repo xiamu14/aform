@@ -37,8 +37,8 @@ const Form: React.ForwardRefRenderFunction<
   FormRefType,
   React.PropsWithChildren<Props>
 > = (props, ref) => {
-  const { onSubmit, children } = props;
-  const [data, setData] = useState<Data>();
+  const { onSubmit, children, initialValues } = props;
+  const [data, setData] = useState<Data>(initialValues ?? {});
   const [rules, setRules] = useState<Rules>();
   const [checkModes, setCheckModes] = useState({});
 
@@ -79,7 +79,7 @@ const Form: React.ForwardRefRenderFunction<
     checkMode: "input" | "blur"
   ) => {
     setRules((v) => ({ ...v, ...rule }));
-    setData((v) => ({ ...v, ...{ [name]: "" } }));
+    // setData((v) => ({ ...v, ...{ [name]: initialValues ? initialValues[name] : "" } }));
     // 优先级 fieldItem > form > normal
     setCheckModes((v) => ({
       ...v,
@@ -117,7 +117,6 @@ const Form: React.ForwardRefRenderFunction<
             if (!(ruleMethod as RegExp).test(value)) {
               res = { [name]: item.message };
             } else {
-
               res = { [name]: false };
             }
           }
@@ -128,7 +127,6 @@ const Form: React.ForwardRefRenderFunction<
             case "min":
               if (typeof value === "number") {
                 if (value > (item as RangeMinRule)[ruleType]) {
-
                   res = { [name]: false };
                 } else {
                   res = { [name]: item.message };

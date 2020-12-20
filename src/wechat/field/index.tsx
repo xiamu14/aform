@@ -1,7 +1,6 @@
 import React, {
   useContext,
   useEffect,
-  FunctionComponent,
   Attributes,
 } from "react";
 import { View } from "remax/wechat";
