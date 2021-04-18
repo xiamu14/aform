@@ -1,3 +1,3 @@
-export { default as Form } from "./wechat/index";
-export { default as Field } from "./wechat/field";
-export { default as Submit } from "./wechat/submit";
+export { default as AForm } from "./core/index"
+export { default as Field } from "./core/field"
+export { default as Submit } from "./core/submit"

@@ -1,27 +1,35 @@
-var gulp = require("gulp");
-var postcss = require("gulp-postcss");
-var sourcemaps = require("gulp-sourcemaps");
-var cssnano = require("cssnano");
-// var ts = require("gulp-typescript");
+const gulp = require("gulp");
+const ts = require("gulp-typescript");
+const through2 = require("through2");
+const taro = require("./codemod/taro");
+const jscodeshift = require("jscodeshift");
 
-function defaultTask(cb) {
-  gulp
-    .src("src/**/*.css")
-    .pipe(gulp.dest("dist"))
-    .pipe(sourcemaps.init())
-    .pipe(
-      postcss([
-        cssnano(),
-      ])
-    )
-    .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("dist/"));
-  // place code for your default task here
+const { src, dest } = gulp;
+
+function transform() {
+  return through2.obj(function (file, _, cb) {
+    const out = taro(
+      { path: file.path, source: file.contents.toString() },
+      { jscodeshift }
+    );
+
+    file.contents = Buffer.from(out);
+    cb(null, file);
+  });
+}
+
+function buildTaro(cb) {
+  const tsProject = ts.createProject("tsconfig.json", {
+    rootDir: ".cache/taro",
+    outDir: "./taro",
+  });
+  src("src/**/*.{tsx,ts}")
+    .pipe(transform())
+    .pipe(dest(".cache/taro"))
+    .pipe(src(".cache/**/*.{tsx,ts}"))
+    .pipe(tsProject())
+    .pipe(dest("dist/"));
   cb();
 }
 
-exports.watch = function watch(cb) {
-  gulp.watch("src/**/*.css", defaultTask);
-};
-
-exports.default = defaultTask;
+exports.taro = gulp.series(buildTaro);
