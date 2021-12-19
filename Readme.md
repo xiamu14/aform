@@ -304,3 +304,64 @@ export default () => {
 ### 提交请求
 
 表单输入的数据获取时通过 Form 里的 onSubmit 。
+
+<!--  -->
+
+```js
+import { useForm, Form, Field} from '@redchili/react-form'
+function Demo() {
+  const {form, effects} = useForm({
+    verifyFocus: true, // submit 触发的校验之后是否聚焦到第一个错误的表单域
+    verifyMode:'onBlur'|'manual', // 校验模式：onBlur 失去焦点 ，manual 手动校验，在调用 form.submit 时校验
+  });
+
+  effects(({on,set})=>{
+    on('sex',({value,error})=>{
+      if(value === Sex.MALE){
+        set('food', {value: 'xxx'})
+        set('food', {hide:true})
+      } else {
+        set('food',{hide:false})
+      }
+    })
+  })
+
+  useEffect(()=>{
+    if (initialValues) {
+      form.setInitialValues(initialValues, true) // 是否触发校验
+    }
+  },[initialValues])
+
+  const handleSubmit = () =>{
+    form.reset()
+
+    form.submit().then(() =>{
+
+    }).catch((errors)=>{
+
+    })
+  }
+
+  return (
+    <Form form={form}>
+    <Field name='' rules={[]} defaultValue="">
+      <label for='sex'>
+      <Checkbox />
+    </Field>
+    <div>
+      <Input />
+    </div>
+      <Button onClick={handleSubmit} >
+    </Form>
+  );
+}
+```
+
+```js
+<Form>
+  <Field rules="">
+    <label>nickname</label>
+    <input name="nickname" />
+  </Field>
+</Form>
+```
